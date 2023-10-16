@@ -23,4 +23,4 @@ do
         # Converts .flac file to .m4a
 done
 
-sleep 2   # Pause for 2 seconds
+sleep 2   # 2 Seconds sleep

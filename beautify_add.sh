@@ -23,22 +23,15 @@ do
         if 
             [ -f "$file" ];     # If file is valid
         then
-            /usr/local/bin/ffmpeg -i $file -i cover.png -map 0 -map 1 -c copy -disposition:v:0 attached_pic out.m4a
-                # Create copy of .m4a file with cover.png added
-            mv out.m4a $file
-                # Rename copy of .m4a file to same as original, replacing it
+            /usr/local/bin/ffmpeg -i $file -i cover.png -map 0 -map 1 -c copy -disposition:v:0 attached_pic out.m4a # Create copy of .m4a file with cover.png added
+            mv out.m4a $file            # Rename copy of .m4a file to same as original, replacing it
             if 
-                /usr/local/bin/exiftool -if '$Itunesadvisory eq "1"'  "${file%.*}.flac"
-                    # If .flac file explicit
+                /usr/local/bin/exiftool -if '$Itunesadvisory eq "1"'  "${file%.*}.flac" # If .flac file explicit
             then 
-                /usr/local/bin/exiftool -overwrite_original -Rating="Explicit" "${file%.*}.m4a"
-                    # Edit .m4a tag to be explicit 
+                /usr/local/bin/exiftool -overwrite_original -Rating="Explicit" "${file%.*}.m4a" # Edit .m4a tag to be explicit 
             fi
         fi
     done
-
     find . -name "*.flac" -type f -delete  # Deletes all .flac files in M4A folder
     find . -name "*.png" -type f -delete   # Deletes all .png files in M4A folder
-
 done
-
