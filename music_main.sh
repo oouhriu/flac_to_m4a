@@ -11,8 +11,8 @@ Purpose: To call other Shell Scripts, acts as main
 FLAC=${CHILD_A:=/Users/Aaron/deemixMusic/FLAC} # Global Path Definition for FLAC folder
 DEEMIX=${CHILD_E:=/Users/Aaron/deemixMusic}
 
-mp3_count=$(ls "$FLAC"/*/*.mp3 2> /dev/null |wc -l | bc)  #Defines 'files' as the number of .mp3 files inside FLAC directory
-flac_count=$(ls "$FLAC"/*/*.flac 2> /dev/null |wc -l | bc)  #Defines 'files' as the number of .flac files inside FLAC directory
+mp3_count=$(ls "$FLAC"/*/*.mp3 2> /dev/null |wc -l | bc)  #Defines 'mp3_count' as the number of .mp3 files inside FLAC directory
+flac_count=$(ls "$FLAC"/*/*.flac 2> /dev/null |wc -l | bc)  #Defines 'flac_count' as the number of .flac files inside FLAC directory
 
 cd $DEEMIX
 
@@ -21,6 +21,7 @@ if [ "$mp3_count" == 0 ] && [ "$flac_count" != 0 ]; then   # If no .mp3 files an
     # echo "run scripts"
     sh m4a_convert.sh               # Execute all other shell scripts
     sh beautify_add.sh
+    sleep 1  # 1 Seconds sleep
     sh music_add.sh
 else
 

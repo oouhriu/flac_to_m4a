@@ -29,9 +29,32 @@ do
                 /usr/local/bin/exiftool -if '$Itunesadvisory eq "1"'  "${file%.*}.flac" # If .flac file explicit
             then 
                 /usr/local/bin/exiftool -overwrite_original -Rating="Explicit" "${file%.*}.m4a" # Edit .m4a tag to be explicit 
+                # QuickTime ItemList Tag for Explicit
             fi
+            
+            DISCNUMBER=`/usr/local/bin/exiftool -DISCNUMBER -s3 "${file%.*}.flac"` 
+            DISCTOTAL=`/usr/local/bin/exiftool -DISCTOTAL -s3 "${file%.*}.flac"` 
+            DISCJOINED="${DISCNUMBER}/${DISCTOTAL}"
+            # echo "$DISCJOINED"
+            /usr/local/bin/exiftool -overwrite_original -DiskNumber="$DISCJOINED" "${file%.*}.m4a"
+
+            TRACKNUMBER=`/usr/local/bin/exiftool -TRACKNUMBER -s3 "${file%.*}.flac"` 
+            TRACKTOTAL=`/usr/local/bin/exiftool -TRACKTOTAL -s3 "${file%.*}.flac"` 
+            TRACKJOINED="${TRACKNUMBER}/${TRACKTOTAL}"
+            # echo "$TRACKJOINED"
+            /usr/local/bin/exiftool -overwrite_original -TrackNumber="$TRACKJOINED" "${file%.*}.m4a"
+
+            /usr/local/bin/exiftool -overwrite_original -AppleStoreAccount="Aaron Dickson" "${file%.*}.m4a"
+
+            BPM=`/usr/local/bin/exiftool -BPM -s3 "${file%.*}.flac"` 
+            # echo "$BPM"
+            /usr/local/bin/exiftool -BeatsPerMinute="$BPM" "${file%.*}.m4a"
+            
         fi
     done
     find . -name "*.flac" -type f -delete  # Deletes all .flac files in M4A folder
     find . -name "*.png" -type f -delete   # Deletes all .png files in M4A folder
 done
+
+AppleStoreAccount
+
