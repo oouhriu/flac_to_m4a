@@ -61,7 +61,33 @@ do
                 BPM=`/usr/local/bin/exiftool --overwrite_original -BPM -s3 "${file%.*}.flac"`  # Read BPM from .flac 
                 /usr/local/bin/exiftool -overwrite_original -BeatsPerMinute="$BPM" "${file%.*}.m4a"  
                 # Write .m4a BeatsPerMinute tag based on .flac
-            
+
+            # -- Copyright Tag -- #
+                # Sometimes Copyright information does not have correct symbol.
+                # Below if-then statement looks at both replacing "(C)" and "(c)" to "©"
+                # It will ignore if Copyright already has "©", or empty.
+                COPYRIGHT=`/usr/local/bin/exiftool --overwrite_original -COPYRIGHT -s3 "${file%.*}.flac"`  # Read BPM from .flac 
+                firstletter=${COPYRIGHT:0:1}
+                symbol="©"
+
+                if [[ "$firstletter" != "$symbol" ]];   
+                    then 
+                        first3letters=${COPYRIGHT:0:3}
+                        if [[ "$first3letters" == "(C)" ]]||[[ "$first3letters" == "(c)" ]];   
+                        then
+                            COPYRIGHT=${COPYRIGHT:4}
+                            COPYRIGHT="© ${COPYRIGHT}"
+                        else
+                            if [[ ! -z "$firstletter" ]];   
+                            then
+                                COPYRIGHT="© ${COPYRIGHT}"
+                            fi
+                        fi
+                    else
+                    echo "already copyright symbol!"
+                fi
+                /usr/local/bin/exiftool -overwrite_original -Copyright="$COPYRIGHT" "${file%.*}.m4a"  
+                # Write .m4a Copyright tag based on .flac
         fi
     done
     find . -name "*.flac" -type f -delete           # Deletes all .flac files in M4A folder
