@@ -1,8 +1,8 @@
 <<'--'
-Author: Aaron Dickson
-Date:   13-OCT-23
-File:   music_add.sh
-Purpose: Adds .m4a files into Music Library
+    Author: Aaron Dickson
+    Date:   13-OCT-23
+    File:   music_add.sh
+    Purpose: Adds .m4a files into Music Library
 --
 
 
@@ -13,7 +13,6 @@ MUSIC=${CHILD_D:=/Users/Aaron/Music/iTunes/iTunes\ Media/Automatically\ Add\ to\
 
 
 open -gja "Music"      # Open Music App in background
-sleep 1  # 1 Seconds sleep
 cp -a $M4A/. "$MUSIC"  # Move contents of M4A to MUSIC, which Automatically adds to music library
 
 sleep 2  # 2 Seconds sleep
