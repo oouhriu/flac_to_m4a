@@ -65,10 +65,15 @@ do
             # -- Copyright Tag -- #
                 # Sometimes Copyright information does not have correct symbol.
                 # Below if-then statement looks at both replacing "(C)" and "(c)" to "©"
-                # It will ignore if Copyright already has "©", or empty.
+                # It will ignore if Copyright already has "©".
+                # If Copyright is empty, will pull "Year" and "Publisher" and concatinate a Copyright tag
+
                 COPYRIGHT=`/usr/local/bin/exiftool --overwrite_original -COPYRIGHT -s3 "${file%.*}.flac"`  # Read BPM from .flac 
                 firstletter=${COPYRIGHT:0:1}
                 symbol="©"
+                PUBLISHER=`/usr/local/bin/exiftool --overwrite_original -PUBLISHER -s3 "${file%.*}.flac"`  # Read BPM from .flac 
+                DATE=`/usr/local/bin/exiftool --overwrite_original -DATE -s3 "${file%.*}.flac"`  # Read BPM from .flac 
+                YEAR=${DATE:0:4}
 
                 if [[ "$firstletter" != "$symbol" ]];   
                     then 
@@ -81,6 +86,13 @@ do
                             if [[ ! -z "$firstletter" ]];   
                             then
                                 COPYRIGHT="© ${COPYRIGHT}"
+                            else
+                                if [[ ! -z "$PUBLISHER" ]];   
+                                then
+                                    COPYRIGHT="© ${YEAR} ${PUBLISHER}"
+                                else
+                                    echo "not enough metadata!"
+                                fi
                             fi
                         fi
                     else
