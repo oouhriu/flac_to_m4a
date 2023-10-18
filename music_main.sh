@@ -1,8 +1,8 @@
 <<'--'
-Author: Aaron Dickson
-Date:   13-OCT-23
-File:   music_main.sh
-Purpose: To call other Shell Scripts, acts as main
+    Author: Aaron Dickson
+    Date:   13-OCT-23
+    File:   music_main.sh
+    Purpose: To call other Shell Scripts, acts as main
 --
 
 
@@ -21,7 +21,6 @@ if [ "$mp3_count" == 0 ] && [ "$flac_count" != 0 ]; then   # If no .mp3 files an
     # echo "run scripts"
     sh m4a_convert.sh               # Execute all other shell scripts
     sh beautify_add.sh
-    sleep 1  # 1 Seconds sleep
     sh music_add.sh
 else
 

@@ -1,8 +1,8 @@
 <<'--'
-Author: Aaron Dickson
-Date:   13-OCT-23
-File:   beautify_add.sh
-Purpose: Adds cover.png and explicit tag to .m4a files
+    Author: Aaron Dickson
+    Date:   13-OCT-23
+    File:   beautify_add.sh
+    Purpose: Adds cover.png and tags to .m4a files
 --
 
 
@@ -23,38 +23,49 @@ do
         if 
             [ -f "$file" ];     # If file is valid
         then
-            /usr/local/bin/ffmpeg -i $file -i cover.png -map 0 -map 1 -c copy -disposition:v:0 attached_pic out.m4a # Create copy of .m4a file with cover.png added
-            mv out.m4a $file            # Rename copy of .m4a file to same as original, replacing it
-            if 
-                /usr/local/bin/exiftool -if '$Itunesadvisory eq "1"'  "${file%.*}.flac" # If .flac file explicit
-            then 
-                /usr/local/bin/exiftool -overwrite_original -Rating="Explicit" "${file%.*}.m4a" # Edit .m4a tag to be explicit 
-                # QuickTime ItemList Tag for Explicit
-            fi
+            # -- Album Art -- #
+                # Create copy of .m4a file with cover.png added
+                /usr/local/bin/ffmpeg -i $file -i cover.png -map 0 -map 1 -c copy -disposition:v:0 attached_pic out.m4a
+                mv out.m4a $file        # Rename copy of .m4a file to same as original, replacing it
             
-            DISCNUMBER=`/usr/local/bin/exiftool -DISCNUMBER -s3 "${file%.*}.flac"` 
-            DISCTOTAL=`/usr/local/bin/exiftool -DISCTOTAL -s3 "${file%.*}.flac"` 
-            DISCJOINED="${DISCNUMBER}/${DISCTOTAL}"
-            # echo "$DISCJOINED"
-            /usr/local/bin/exiftool -overwrite_original -DiskNumber="$DISCJOINED" "${file%.*}.m4a"
+            # -- Rating Tag -- #
+                RATING_VALUE=`/usr/local/bin/exiftool -overwrite_original -ITUNESADVISORY -s3 "${file%.*}.flac"` # Read ITUNESADVISORY from .flac 
+                if [[ "$RATING_VALUE" -eq 1 ]];   
+                    then RATING="Explicit"          # If .flac file ITUNESADVISORY = 1 then set .m4a Rating variable to 'Explicit'
+                elif [[ "$RATING_VALUE" -eq 2 ]]; 
+                    then RATING="Clean"             # If .flac file ITUNESADVISORY = 2 then set .m4a Rating variable to 'Clean'
+                else RATING="none"
+                fi
+                /usr/local/bin/exiftool -overwrite_original -Rating="$RATING" "${file%.*}.m4a"   
+                # Write .m4a Rating tag based on .flac
 
-            TRACKNUMBER=`/usr/local/bin/exiftool -TRACKNUMBER -s3 "${file%.*}.flac"` 
-            TRACKTOTAL=`/usr/local/bin/exiftool -TRACKTOTAL -s3 "${file%.*}.flac"` 
-            TRACKJOINED="${TRACKNUMBER}/${TRACKTOTAL}"
-            # echo "$TRACKJOINED"
-            /usr/local/bin/exiftool -overwrite_original -TrackNumber="$TRACKJOINED" "${file%.*}.m4a"
+            # -- Disc Tag -- #
+                DISCNUMBER=`/usr/local/bin/exiftool -overwrite_original -DISCNUMBER -s3 "${file%.*}.flac"`  # Read DISCNUMBER from .flac 
+                DISCTOTAL=`/usr/local/bin/exiftool -overwrite_original -DISCTOTAL -s3 "${file%.*}.flac"`  # Read DISCTOTAL from .flac 
+                DISCJOINED="${DISCNUMBER}/${DISCTOTAL}"       # Make DISCJOINED variable "x/x" format
+                /usr/local/bin/exiftool -overwrite_original -DiskNumber="$DISCJOINED" "${file%.*}.m4a"  
+                # Write .m4a DiskNumber tag based on .flac
 
-            /usr/local/bin/exiftool -overwrite_original -AppleStoreAccount="Aaron Dickson" "${file%.*}.m4a"
+            # -- Track Tag -- #
+                TRACKNUMBER=`/usr/local/bin/exiftool -overwrite_original -TRACKNUMBER -s3 "${file%.*}.flac"`  # Read TRACKNUMBER from .flac 
+                TRACKTOTAL=`/usr/local/bin/exiftool -overwrite_original -TRACKTOTAL -s3 "${file%.*}.flac"`  # Read TRACKTOTAL from .flac 
+                TRACKJOINED="${TRACKNUMBER}/${TRACKTOTAL}"       # Make TRACKJOINED variable "x/x" format
+                /usr/local/bin/exiftool -overwrite_original -TrackNumber="$TRACKJOINED" "${file%.*}.m4a"  
+                # Write .m4a TrackNumber tag based on .flac
 
-            BPM=`/usr/local/bin/exiftool -BPM -s3 "${file%.*}.flac"` 
-            # echo "$BPM"
-            /usr/local/bin/exiftool -BeatsPerMinute="$BPM" "${file%.*}.m4a"
+            # -- Account Tag -- #
+                /usr/local/bin/exiftool -overwrite_original -AppleStoreAccount="Aaron Dickson" "${file%.*}.m4a"
+                # Write .m4a AppleStoreAccount tag based on .flac
+
+            # -- BPM Tag -- #
+                BPM=`/usr/local/bin/exiftool --overwrite_original -BPM -s3 "${file%.*}.flac"`  # Read BPM from .flac 
+                /usr/local/bin/exiftool -overwrite_original -BeatsPerMinute="$BPM" "${file%.*}.m4a"  
+                # Write .m4a BeatsPerMinute tag based on .flac
             
         fi
     done
-    find . -name "*.flac" -type f -delete  # Deletes all .flac files in M4A folder
-    find . -name "*.png" -type f -delete   # Deletes all .png files in M4A folder
+    find . -name "*.flac" -type f -delete           # Deletes all .flac files in M4A folder
+    find . -name "*.png" -type f -delete            # Deletes all .png files in M4A folder
+    find . -name "*.jpg" -type f -delete            # Deletes all .jpg files in M4A folder
+    find . -name "*.m4a_original" -type f -delete   # Deletes all .m4a_original files in M4A folder
 done
-
-AppleStoreAccount
-
