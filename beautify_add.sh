@@ -28,6 +28,12 @@ do
                 /usr/local/bin/ffmpeg -i $file -i cover.png -map 0 -map 1 -c copy -disposition:v:0 attached_pic out.m4a
                 mv out.m4a $file        # Rename copy of .m4a file to same as original, replacing it
             
+            # -- Album Artst Tag -- #
+                ALBUMARTIST=`/usr/local/bin/exiftool -overwrite_original -all:ALBUMARTIST  -s3 "${file%.*}.flac"` # Read ITUNESADVISORY from .flac 
+                ALBUMARTIST_joined="${ALBUMARTIST//$'\n/, '}" 
+                ALBUMARTIST_joined=$(echo "${ALBUMARTIST_joined}" | sed 's/\(.*\),/\1 \&/g' )
+                /usr/local/bin/exiftool -overwrite_original -AlbumArtist="$ALBUMARTIST_joined" "${file%.*}.m4a"   
+
             # -- Rating Tag -- #
                 RATING_VALUE=`/usr/local/bin/exiftool -overwrite_original -ITUNESADVISORY -s3 "${file%.*}.flac"` # Read ITUNESADVISORY from .flac 
                 if [[ "$RATING_VALUE" -eq 1 ]];   
