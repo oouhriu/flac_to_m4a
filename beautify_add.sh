@@ -71,35 +71,28 @@ do
                 COPYRIGHT=`/usr/local/bin/exiftool --overwrite_original -COPYRIGHT -s3 "${file%.*}.flac"`  # Read BPM from .flac 
                 firstletter=${COPYRIGHT:0:1}
                 symbol="©"
-                PUBLISHER=`/usr/local/bin/exiftool --overwrite_original -PUBLISHER -s3 "${file%.*}.flac"`  # Read BPM from .flac 
-                DATE=`/usr/local/bin/exiftool --overwrite_original -DATE -s3 "${file%.*}.flac"`  # Read BPM from .flac 
+                PUBLISHER=`/usr/local/bin/exiftool --overwrite_original -PUBLISHER -s3 "${file%.*}.flac"`  # Read PUBLISHER from .flac 
+                DATE=`/usr/local/bin/exiftool --overwrite_original -DATE -s3 "${file%.*}.flac"`  # Read DATE from .flac 
                 YEAR=${DATE:0:4}
 
-                if [[ "$firstletter" != "$symbol" ]];   
-                    then 
-                        first3letters=${COPYRIGHT:0:3}
-                        if [[ "$first3letters" == "(C)" ]]||[[ "$first3letters" == "(c)" ]];   
-                        then
-                            COPYRIGHT=${COPYRIGHT:4}
-                            COPYRIGHT="© ${COPYRIGHT}"
+                if [[ "$firstletter" != "$symbol" ]];    # If first letter of COPYRIGHT from .flac not "©".
+                    then first3letters=${COPYRIGHT:0:3}
+                        if [[ "$first3letters" == "(C)" ]]||[[ "$first3letters" == "(c)" ]];   # If first 3 letters of COPYRIGHT from .flac equal (C) or (c)
+                        then COPYRIGHT=${COPYRIGHT:4}           # Remove 2 brackets, C and whitespace from COPYRIGHT variable
+                            COPYRIGHT="© ${COPYRIGHT}"          # Add © to the start of what remains from COPYRIGHT variable
                         else
-                            if [[ ! -z "$firstletter" ]];   
-                            then
-                                COPYRIGHT="© ${COPYRIGHT}"
+                            if [[ ! -z "$firstletter" ]];    # If first letter of COPYRIGHT from .flac is not empty
+                            then COPYRIGHT="© ${COPYRIGHT}"     # Add © to the start of COPYRIGHT variable
                             else
-                                if [[ ! -z "$PUBLISHER" ]];   
-                                then
-                                    COPYRIGHT="© ${YEAR} ${PUBLISHER}"
-                                else
-                                    echo "not enough metadata!"
+                                if [[ ! -z "$PUBLISHER" ]]||[[ -z "$COPYRIGHT" ]];   # If PUBLISHER from .flac is not empty and COPYRIGHT from .flac is
+                                then COPYRIGHT="© ${YEAR} ${PUBLISHER}"  # Define COPYRIGHT variable as   "© YEAR PUBLISHER"
+                                else echo "not enough metadata!"
                                 fi
                             fi
                         fi
-                    else
-                    echo "already copyright symbol!"
+                    else echo "already copyright symbol!"
                 fi
-                /usr/local/bin/exiftool -overwrite_original -Copyright="$COPYRIGHT" "${file%.*}.m4a"  
-                # Write .m4a Copyright tag based on .flac
+                /usr/local/bin/exiftool -overwrite_original -Copyright="$COPYRIGHT" "${file%.*}.m4a"  # Write .m4a Copyright tag based on .flac
         fi
     done
     find . -name "*.flac" -type f -delete           # Deletes all .flac files in M4A folder
