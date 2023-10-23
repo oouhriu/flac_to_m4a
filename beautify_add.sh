@@ -29,10 +29,18 @@ do
                 mv out.m4a $file        # Rename copy of .m4a file to same as original, replacing it
             
             # -- Album Artst Tag -- #
-                ALBUMARTIST=`/usr/local/bin/exiftool -overwrite_original -all:ALBUMARTIST  -s3 "${file%.*}.flac"` # Read ITUNESADVISORY from .flac 
+                ALBUMARTIST=`/usr/local/bin/exiftool -overwrite_original -all:ALBUMARTIST  -s3 "${file%.*}.flac"` # Read ALBUMARTIST from .flac 
                 ALBUMARTIST_joined="${ALBUMARTIST//$'\n/, '}" 
                 ALBUMARTIST_joined=$(echo "${ALBUMARTIST_joined}" | sed 's/\(.*\),/\1 \&/g' )
-                /usr/local/bin/exiftool -overwrite_original -AlbumArtist="$ALBUMARTIST_joined" "${file%.*}.m4a"   
+
+            # -- Composer Tag -- #
+                COMPOSER_FLAC=`/usr/local/bin/exiftool -overwrite_original -all:COMPOSER  -s3 "${file%.*}.flac"` # Read COMPOSER from .flac 
+                COMPOSER="${COMPOSER_FLAC//$'\n/, '}" 
+                COMPOSER=$(echo "${COMPOSER}" | sed 's/\(.*\),/\1 \&/g' )
+
+            # -- Genre Tag -- #
+                GENRE_FLAC=`/usr/local/bin/exiftool -overwrite_original -all:GENRE  -s3 "${file%.*}.flac"` # Read GENRE from .flac 
+                GENRE="${GENRE_FLAC//$'\n//'}" 
 
             # -- Rating Tag -- #
                 RATING_VALUE=`/usr/local/bin/exiftool -overwrite_original -ITUNESADVISORY -s3 "${file%.*}.flac"` # Read ITUNESADVISORY from .flac 
@@ -42,31 +50,19 @@ do
                     then RATING="Clean"             # If .flac file ITUNESADVISORY = 2 then set .m4a Rating variable to 'Clean'
                 else RATING="none"
                 fi
-                /usr/local/bin/exiftool -overwrite_original -Rating="$RATING" "${file%.*}.m4a"   
-                # Write .m4a Rating tag based on .flac
 
             # -- Disc Tag -- #
                 DISCNUMBER=`/usr/local/bin/exiftool -overwrite_original -DISCNUMBER -s3 "${file%.*}.flac"`  # Read DISCNUMBER from .flac 
                 DISCTOTAL=`/usr/local/bin/exiftool -overwrite_original -DISCTOTAL -s3 "${file%.*}.flac"`  # Read DISCTOTAL from .flac 
                 DISCJOINED="${DISCNUMBER}/${DISCTOTAL}"       # Make DISCJOINED variable "x/x" format
-                /usr/local/bin/exiftool -overwrite_original -DiskNumber="$DISCJOINED" "${file%.*}.m4a"  
-                # Write .m4a DiskNumber tag based on .flac
 
             # -- Track Tag -- #
                 TRACKNUMBER=`/usr/local/bin/exiftool -overwrite_original -TRACKNUMBER -s3 "${file%.*}.flac"`  # Read TRACKNUMBER from .flac 
                 TRACKTOTAL=`/usr/local/bin/exiftool -overwrite_original -TRACKTOTAL -s3 "${file%.*}.flac"`  # Read TRACKTOTAL from .flac 
                 TRACKJOINED="${TRACKNUMBER}/${TRACKTOTAL}"       # Make TRACKJOINED variable "x/x" format
-                /usr/local/bin/exiftool -overwrite_original -TrackNumber="$TRACKJOINED" "${file%.*}.m4a"  
-                # Write .m4a TrackNumber tag based on .flac
-
-            # -- Account Tag -- #
-                /usr/local/bin/exiftool -overwrite_original -AppleStoreAccount="Aaron Dickson" "${file%.*}.m4a"
-                # Write .m4a AppleStoreAccount tag based on .flac
 
             # -- BPM Tag -- #
                 BPM=`/usr/local/bin/exiftool --overwrite_original -BPM -s3 "${file%.*}.flac"`  # Read BPM from .flac 
-                /usr/local/bin/exiftool -overwrite_original -BeatsPerMinute="$BPM" "${file%.*}.m4a"  
-                # Write .m4a BeatsPerMinute tag based on .flac
 
             # -- Copyright Tag -- #
                 # Sometimes Copyright information does not have correct symbol.
@@ -75,30 +71,30 @@ do
                 # If Copyright is empty, will pull "Year" and "Publisher" and concatinate a Copyright tag
 
                 COPYRIGHT=`/usr/local/bin/exiftool --overwrite_original -COPYRIGHT -s3 "${file%.*}.flac"`  # Read BPM from .flac 
-                firstletter=${COPYRIGHT:0:1}
-                symbol="©"
                 PUBLISHER=`/usr/local/bin/exiftool --overwrite_original -PUBLISHER -s3 "${file%.*}.flac"`  # Read PUBLISHER from .flac 
                 DATE=`/usr/local/bin/exiftool --overwrite_original -DATE -s3 "${file%.*}.flac"`  # Read DATE from .flac 
+                SYMBOL="©"
                 YEAR=${DATE:0:4}
 
-                if [[ "$firstletter" != "$symbol" ]];    # If first letter of COPYRIGHT from .flac not "©".
-                    then first3letters=${COPYRIGHT:0:3}
-                        if [[ "$first3letters" == "(C)" ]]||[[ "$first3letters" == "(c)" ]];   # If first 3 letters of COPYRIGHT from .flac equal (C) or (c)
-                        then COPYRIGHT=${COPYRIGHT:4}           # Remove 2 brackets, C and whitespace from COPYRIGHT variable
-                            COPYRIGHT="© ${COPYRIGHT}"          # Add © to the start of what remains from COPYRIGHT variable
+                if [[ "$COPYRIGHT" == *"$SYMBOL"* ]];    # If first letter of COPYRIGHT from .flac not "©".
+                then echo "already copyright symbol!"
+                else
+                    if [[ "$COPYRIGHT" == *"(C)"* ]]||[[ "$COPYRIGHT" == *"(c)"* ]];   # If first 3 letters of COPYRIGHT from .flac equal (C) or (c)
+                    then COPYRIGHT=${COPYRIGHT:4}           # Remove 2 brackets, C and whitespace from COPYRIGHT variable
+                        COPYRIGHT="© ${COPYRIGHT}"          # Add © to the start of what remains from COPYRIGHT variable
+                    else
+                        if [[ ! -z "$COPYRIGHT" ]];    # If first letter of COPYRIGHT from .flac is not empty
+                        then COPYRIGHT="© ${COPYRIGHT}"     # Add © to the start of COPYRIGHT variable
                         else
-                            if [[ ! -z "$firstletter" ]];    # If first letter of COPYRIGHT from .flac is not empty
-                            then COPYRIGHT="© ${COPYRIGHT}"     # Add © to the start of COPYRIGHT variable
-                            else
-                                if [[ ! -z "$PUBLISHER" ]]||[[ -z "$COPYRIGHT" ]];   # If PUBLISHER from .flac is not empty and COPYRIGHT from .flac is
-                                then COPYRIGHT="© ${YEAR} ${PUBLISHER}"  # Define COPYRIGHT variable as   "© YEAR PUBLISHER"
-                                else echo "not enough metadata!"
-                                fi
+                            if [[ ! -z "$PUBLISHER" ]]||[[ -z "$COPYRIGHT" ]];   # If PUBLISHER from .flac is not empty and COPYRIGHT from .flac is
+                            then COPYRIGHT="© ${YEAR} ${PUBLISHER}"  # Define COPYRIGHT variable as   "© YEAR PUBLISHER"
+                            else echo "not enough metadata!"
                             fi
                         fi
-                    else echo "already copyright symbol!"
+                    fi
                 fi
-                /usr/local/bin/exiftool -overwrite_original -Copyright="$COPYRIGHT" "${file%.*}.m4a"  # Write .m4a Copyright tag based on .flac
+                /usr/local/bin/exiftool -overwrite_original -AlbumArtist="$ALBUMARTIST_joined" -Composer="$COMPOSER" -Genre="$GENRE" -Rating="$RATING" -DiskNumber="$DISCJOINED" -TrackNumber="$TRACKJOINED" -AppleStoreAccount="Aaron Dickson" -BeatsPerMinute="$BPM" -Copyright="$COPYRIGHT" "${file%.*}.m4a"   
+        
         fi
     done
     find . -name "*.flac" -type f -delete           # Deletes all .flac files in M4A folder
