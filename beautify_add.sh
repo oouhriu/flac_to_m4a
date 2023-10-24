@@ -23,6 +23,7 @@ do
         if 
             [ -f "$file" ];     # If file is valid
         then
+        
             # -- Album Art -- #
                 # Create copy of .m4a file with cover.png added
                 /usr/local/bin/ffmpeg -i $file -i cover.png -map 0 -map 1 -c copy -disposition:v:0 attached_pic out.m4a
@@ -93,8 +94,9 @@ do
                         fi
                     fi
                 fi
+
+                # Write all variables to .m4a file
                 /usr/local/bin/exiftool -overwrite_original -AlbumArtist="$ALBUMARTIST_joined" -Composer="$COMPOSER" -Genre="$GENRE" -Rating="$RATING" -DiskNumber="$DISCJOINED" -TrackNumber="$TRACKJOINED" -AppleStoreAccount="Aaron Dickson" -BeatsPerMinute="$BPM" -Copyright="$COPYRIGHT" "${file%.*}.m4a"   
-        
         fi
     done
     find . -name "*.flac" -type f -delete           # Deletes all .flac files in M4A folder
