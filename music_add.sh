@@ -1,5 +1,5 @@
 <<'--'
-    Author: Aaron Dickson
+    Author: oouhriu
     Date:   13-OCT-23
     File:   music_add.sh
     Purpose: Adds .m4a files into Music Library
