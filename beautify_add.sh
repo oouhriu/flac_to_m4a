@@ -1,5 +1,5 @@
 <<'--'
-    Author: Aaron Dickson
+    Author: oouhriu
     Date:   13-OCT-23
     File:   beautify_add.sh
     Purpose: Adds cover.png and tags to .m4a files
