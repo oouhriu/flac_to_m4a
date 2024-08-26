@@ -96,7 +96,7 @@ do
                 fi
 
                 # Write all variables to .m4a file
-                /usr/local/bin/exiftool -overwrite_original -AlbumArtist="$ALBUMARTIST_joined" -Composer="$COMPOSER" -Genre="$GENRE" -Rating="$RATING" -DiskNumber="$DISCJOINED" -TrackNumber="$TRACKJOINED" -AppleStoreAccount="Aaron Dickson" -BeatsPerMinute="$BPM" -Copyright="$COPYRIGHT" "${file%.*}.m4a"   
+                /usr/local/bin/exiftool -overwrite_original -AlbumArtist="$ALBUMARTIST_joined" -Composer="$COMPOSER" -Genre="$GENRE" -Rating="$RATING" -DiskNumber="$DISCJOINED" -TrackNumber="$TRACKJOINED" -AppleStoreAccount="oouhriu" -BeatsPerMinute="$BPM" -Copyright="$COPYRIGHT" "${file%.*}.m4a"   
         fi
     done
     find . -name "*.flac" -type f -delete           # Deletes all .flac files in M4A folder
