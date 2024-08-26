@@ -1,5 +1,5 @@
 <<'--'
-    Author: Aaron Dickson
+    Author: oouhriu
     Date:   13-OCT-23
     File:   music_main.sh
     Purpose: To call other Shell Scripts, acts as main
